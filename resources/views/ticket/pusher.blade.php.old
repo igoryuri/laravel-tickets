@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{asset('css/app.css')}}">
+    <link href="{{ asset('css/metro-all.css') }}" rel="stylesheet">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="cell flex-align-self-center">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Chamados</h4>
+                        <div id="progress" style="position: absolute; right: 10px; top: 10px;" hidden>
+                            <div data-role="activity" data-type="square" data-style="dark"></div>
+                        </div>
+                    </div>
+                    <div class="card-content p-2">
+                        <div class="row mb-2">
+                            <div class="cell-md-6 my-search-wrapper"></div>
+                            <div class="cell-md-5 my-rows-wrapper"></div>
+                            <div class="cell-md-1">
+                                <a href="/tickets/create" class="button secondary rounded float-right">Criar Chamado</a>
+                            </div>
+                        </div>
+                        <div id="app">
+                            <example-component></example-component>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{asset('js/app.js')}}"></script>
+</body>
+</html>

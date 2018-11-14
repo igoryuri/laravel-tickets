@@ -1,0 +1,46 @@
+.showHint {
+    animation-name: hintIn;
+    animation-duration: 0.5s;
+}
+.hideHint {
+    animation-name: hintOut;
+    animation-duration: 0.5s;
+}
+
+@keyframes hintIn {
+    0% {
+        transform: translate3d(0, -200px, 0) scale3d(0.1, 0.1, 0.1);
+        opacity: 0; }
+    40% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
+        transform: translate3d(0, 0, 0) scale3d(1.08, 1.08, 1.08); }
+    60% {
+        animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
+    80% {
+        animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+        transform: translate3d(0, 0, 0) scale3d(1.03, 1.03, 1.03); }
+    100% {
+        animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+}
+
+
+@keyframes hintOut {
+    0% {
+        animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transform: scale3d(1, 1, 1); }
+    60% {
+        animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+        transform: scale3d(1.08, 1.08, 1.08); }
+    80% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1); }
+    100% {
+        opacity: 0;
+        animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
+        transform: scale3d(0.3, 0.3, 0.3);
+    }
+}

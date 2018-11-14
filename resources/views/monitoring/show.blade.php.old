@@ -1,0 +1,113 @@
+@extends('layouts.app')
+
+@section('styles')
+@endsection
+
+@section('content')
+    <a href="{{ route('home') }}" class="action-button button" style="position: absolute; right: 20px; top: 10px;"
+       data-role="hint"
+       data-hint-text="Voltar"
+       data-cls-hint="bg-cyan fg-white drop-shadow">
+        <span class="icon"><span class="mif-arrow-left"></span></span>
+    </a>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                {{ $ticket->id }} - Acompanhamento - Chamado: {{ $ticket->name }}
+
+                <input type="checkbox" data-role="checkbox" class="place-right" id="checkMonitoring" onclick="showForm()"
+                       data-caption="Mostrar/Ocultar formulário"
+                       data-caption-position="left">
+            </div>
+            <div class="card-content" style="overflow-y: auto; height: 500px;">
+                @foreach($monitorings as $monitoring)
+                    <div class="w-50 {{ $monitoring->userIdTicket == $monitoring->user_id ? 'place-left' : 'place-right' }}"
+                            data-role="panel"
+                            data-title-caption="{{ $monitoring->name }} {{$monitoring->userIdTicket}}
+                                    <span class='place-right text-small text-muted'>
+                                        {!! date("d/m/Y h:i:s", strtotime($monitoring->created_at)) !!}
+                                    </span>"
+                            data-title-icon="<span class='mif-user-check'></span>"
+                            data-cls-title="{{ $monitoring->userIdTicket == $monitoring->user_id ? 'bd-lightBlue' : 'bd-lightRed' }}"
+                            data-cls-panel="{{ $monitoring->userIdTicket == $monitoring->user_id ? 'bd-lightBlue' : 'bd-lightRed' }} m-2"
+                            data-cls-title-icon="{{ $monitoring->userIdTicket == $monitoring->user_id ? 'bd-lightBlue' : 'bd-lightRed' }}">
+
+                        {{ $monitoring->description }}
+                    </div>
+                @endforeach
+
+            </div>
+            <div class="card-footer">
+                <div class="cell-md-12">
+                    <form action="{{ route('monitorings.store') }}" method="post">
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+                        <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
+                        <div class="row">
+                            <div class="cell-md-11">
+                                <textarea name="description" data-role="textarea" data-auto-size="true" data-max-height="200"></textarea>
+                            </div>
+                            <div class="cell-md-1">
+                                <button class="button mt-2" type="submit">Salvar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{--<div class="fixed-bottom" id="formMonitoring">--}}
+        {{--<div class="container">--}}
+            {{--<div class="row">--}}
+                {{--<div class="cell flex-align-self-center">--}}
+                    {{--<div class="card bg-white">--}}
+                        {{--<div class="card-header">--}}
+                            {{--<h5>Acompanhamento</h5>--}}
+                        {{--</div>--}}
+
+                        {{--<div class="card-content p-2">--}}
+                            {{--<form action="{{ route('monitorings.store') }}" method="post">--}}
+                                {{--{!! csrf_field() !!}--}}
+                                {{--<input type="hidden" name="user_id" value="{{ Auth::id() }}">--}}
+                                {{--<input type="hidden" name="ticket_id" value="{{ $ticket->id }}">--}}
+                                {{--<div class="row">--}}
+                                    {{--<div class="cell-md-11">--}}
+                                        {{--<textarea name="description" data-role="textarea" data-auto-size="true" data-max-height="200"></textarea>--}}
+                                    {{--</div>--}}
+                                    {{--<div class="cell-md-1">--}}
+                                        {{--<button class="button mt-2" type="submit">Salvar</button>--}}
+                                    {{--</div>--}}
+                                {{--</div>--}}
+                            {{--</form>--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
+                {{--</div>--}}
+            {{--</div>--}}
+        {{--</div>--}}
+    {{--</div>--}}
+@endsection
+
+@section('scripts')
+    <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
+    <script>
+        var pusher = new Pusher('ae380c3a2d0583455cc6', {
+            cluster: 'us2',
+            encrypted: false
+        });
+        var channel = pusher.subscribe('refresh-status');
+        channel.bind('App\\Events\\RefreshPusherEvent', callMonitoring)
+
+        function callMonitoring() {
+            window.location.href = "{{route('monitorings.show', ['id' => $ticket->id])}}"
+        }
+    </script>
+    <script>
+        function showForm() {
+            if ($('#checkMonitoring').is(':checked')) {
+                $('#formMonitoring').hide();
+            } else {
+                $('#formMonitoring').show();
+            }
+        }
+    </script>
+@endsection

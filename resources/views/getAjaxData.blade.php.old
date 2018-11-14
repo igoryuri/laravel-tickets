@@ -1,0 +1,219 @@
+@section('styles')
+    <link href="{{ asset('css/dialogs.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/hint-animation.css') }}" rel="stylesheet">
+@endsection
+
+<div class="row mb-2">
+    <div class="cell-md-8 my-search-wrapper"></div>
+    <div class="cell-md-3 my-rows-wrapper"></div>
+    <div class="cell-md-1">
+        <a href="{{ route('tickets.create') }}" class="button secondary rounded float-right">Criar
+            Chamado</a>
+    </div>
+</div>
+<table id="table" class="table striped row-hover row-border table-border cell-border compact"
+       data-role="table"
+       data-rows="10"
+       data-rows-steps="-1, 5, 10, 50"
+       data-show-activity="true"
+       data-search-wrapper=".my-search-wrapper"
+       data-rows-wrapper=".my-rows-wrapper"
+       data-table-search-title="Quick search:"
+       data-pagination-wrapper=".my-pagination-wrapper"
+       data-info-wrapper=".my-info-wrapper">
+    <thead>
+        <tr>
+            <th data-sortable="true" data-format="number">Id</th>
+            <th data-sortable="true">Nome</th>
+            <th data-sortable="true">Descrição</th>
+            <th data-sortable="true">Urgência</th>
+            <th data-sortable="true">Impacto</th>
+            <th data-sortable="true">Requerente</th>
+            <th>Imagem</th>
+            <th data-sortable="true">Status</th>
+            <th class="text-center">Atribuído</th>
+            <th class="text-center" data-size="200">Ação</th>
+        </tr>
+    </thead>
+    <tbody class="row-hover">
+        @foreach($tickets_open as $ticket_open)
+            <tr>
+                <td>
+                    {{ $ticket_open->id }}
+                </td>
+                <td>
+                    <a href="#"
+                       onclick="dialogDetails('{{$ticket_open->id}}', '{{$ticket_open->name}}', '{{ $ticket_open->ticketUserName }}', '{{ $ticket_open->description }}')">
+                        {{ $ticket_open->name }}
+                    </a>
+                </td>
+                <td>
+                    <div data-role="hint"
+                         data-hint-text="{{$ticket_open->description}}"
+                         data-hint-hide="0"
+                         data-on-hint-show="hintRoutines.showHint"
+                         data-on-hint-hide="hintRoutines.hideHint"
+                         data-cls-hint="bg-cyan fg-white drop-shadow">
+                        {{ substr($ticket_open->description, 0, 30) }}
+                    </div>
+                </td>
+                <td>
+                    @switch($ticket_open->urgency)
+                        @case(1)
+                        Baixa
+                        @break
+
+                        @case(2)
+                        Média
+                        @break
+
+                        @case(3)
+                        Alta
+                        @break
+                    @endswitch
+                </td>
+                <td>
+                    @switch($ticket_open->impact)
+                        @case(1)
+                        Baixo
+                        @break
+
+                        @case(2)
+                        Médio
+                        @break
+
+                        @case(3)
+                        Alto
+                        @break
+                    @endswitch
+                </td>
+                <td>
+                    {{ $ticket_open->ticketUserName }}
+                </td>
+                <td>
+                    {{ $ticket_open->image }}
+                </td>
+                <td>
+                    @switch($ticket_open->status)
+                        @case(1)
+                        Aberto
+                        @break
+
+                        @case(2)
+                        Processando
+                        @break
+
+                        @case(3)
+                        Pendente Fornecedor
+                        @break
+
+                        @case(4)
+                        Pendente Cliente
+                        @break
+
+                        @case(5)
+                        Fechado
+                        @break
+                    @endswitch
+                </td>
+                <td>
+                    @if(isset($ticket_open->userAssign))
+                        <div class="d-flex flex-justify-center">
+                            {{ $ticket_open->userName }}
+                        </div>
+                    @else
+                        <form action="{{ route('assigns.store') }}" method="post"
+                              id="formAssign{{ $ticket_open->id }}">
+                            {!! csrf_field() !!}
+                            <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+                            <input type="hidden" name="ticket_id" value="{{ $ticket_open->id }}">
+                        </form>
+                        <div class="d-flex flex-justify-center">
+                            <button class="button small" type="submit" form="formAssign{{ $ticket_open->id }}"
+                                    onclick="document.getElementById('progress').removeAttribute('hidden')">
+                                <span class="mif-user-plus"></span> Atribuir
+                            </button>
+                        </div>
+                    @endif
+                </td>
+                <td>
+                    <button onclick="Metro.dialog.open('#solution{{$ticket_open->id}}');"
+                            class="button small" {{ $ticket_open->userAssign ? '' : 'disabled' }}>
+                        Solução
+                    </button>
+                    <div class="dialog" id="solution{{$ticket_open->id}}"
+                         data-width="1000"
+                         data-overlay-click-close="true"
+                         data-role="dialog"
+                    >
+
+                        <div class="dialog-title">{{$ticket_open->name}}</div>
+                        <div class="dialog-content">
+                            <form action="{{ route('solutions.store') }}" method="post"
+                                  id="formSolution{{ $ticket_open->id }}">
+                                {!! csrf_field() !!}
+                                <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+                                <input type="hidden" name="ticket_id" value="{{ $ticket_open->id }}">
+                                <textarea name="description" data-role="textarea"></textarea>
+                            </form>
+                        </div>
+                        <div class="dialog-actions clear">
+                            <button class="button wide rounded js-dialog-close place-right">Cancelar</button>
+                            <button class="button rounded success js-dialog-close place-right"
+                                    form="formSolution{{ $ticket_open->id }}">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('monitoringTicket.show', ['monitoring' => $ticket_open->id]) }}"
+                       class="button small">
+                        Acompanhamento
+                    </a>
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+<p class="text-center my-info-wrapper"></p>
+<div class="d-flex flex-justify-center my-pagination-wrapper"></div>
+<div class="multi-action" style="position: absolute; right: 10px; bottom: 10px;">
+    <button class="action-button rotate-minus"
+            onclick="$(this).toggleClass('active')">
+        <span class="icon"><span class="mif-more-horiz"></span></span>
+    </button>
+    <ul class="actions drop-left">
+
+        <li class="bg-orange">
+            <a href="#" onclick="$('#table').data('table').export('CSV', 'all', 'export-all.csv')">
+                <span class="mif-upload2 icon"></span></a>
+        </li>
+
+        <li class="bg-teal">
+            <a href="#"
+               onclick="$('#table').data('table').export('CSV', 'checked', 'export-checked.csv')"><span
+                        class="mif-checkmark icon"></span></a>
+        </li>
+    </ul>
+</div>
+
+@if(session('login'))
+    <script>
+        $(document).ready(function () {
+            var notify = Metro.notify;
+            notify.setup({
+                width: 300,
+                duration: 1000
+            });
+            notify.create("{{ session('login') }}");
+            notify.reset();
+        })
+    </script>
+@endif
+@if(session('success'))
+    <script>
+        $(document).ready(function () {
+            Metro.toast.create("{{ session('success') }}", null, 5000, "success");
+        })
+    </script>
+@endif
